@@ -120,7 +120,7 @@ require('lazy').setup({
   },
 
 
-  -- help japanese
+  -- vim help to japanese 
   'vim-jp/vimdoc-ja',
 
 
@@ -235,6 +235,22 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+
+  -- null-ls
+  {
+    'jose-elias-alvarez/null-ls.nvim',
+  },
+
+  -- Pretttier
+  {
+    'prettier/vim-prettier',
+    build = 'yarn install --frozen-lockfile',
+  },
+
+--  -- NeoFormat
+--  {
+--    'sbdchd/neoformat',
+--  },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -385,9 +401,11 @@ local on_attach = function(_, bufnr)
   -- NOTE: Remember that lua is a real programming language, and as such it is possible
   -- to define small helper and utility functions so you don't have to repeat yourself
   -- many times.
+  -- luaはプログラミング言語だから関数とか作れるよ
   --
   -- In this case, we create a function that lets us more easily define mappings specific
   -- for LSP related items. It sets the mode, buffer and description for us each time.
+  -- ここではLSP用のマッピング設定の関数を定義してみる
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -437,8 +455,9 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+
+  tsserver = {},
 
   lua_ls = {
     Lua = {
@@ -520,6 +539,43 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- ===========================================================
+--  My Keymaps
+-- ===========================================================
+-- change buffer size
+local keymapOpts = { noremap = true, silent = true}
+vim.keymap.set('n', '<Space>h', '<C-w><', keymapOpts)
+vim.keymap.set('n', '<Space>l', '<C-w>>', keymapOpts)
+vim.keymap.set('n', '<Space>j', '<C-w>-', keymapOpts)
+vim.keymap.set('n', '<Space>k', '<C-w>+', keymapOpts)
+
+-- ===========================================================
+-- Null-ls
+-- ===========================================================
+local status, null_ls = pcall(require,"null-ls")
+if (not status) then return end
+
+null_ls.setup({
+  sources = {
+    -- null_ls.builtins.diagnostics.eslint_d.with({
+    --   prefer_local = "node_modules/.bin",
+    -- }),
+    null_ls.builtins.formatting.prettier.with({
+      prefer_local = "node_modules/.bin",
+    }),
+  },
+})
+
+-- ===========================================================
+-- NeoFormat
+-- ===========================================================
+-- vim.g.neoformat_try_node_exe = 1
+-- 
+-- -- neoformatを有効化
+-- vim.cmd [[
+--   autocmd BufWritePre *.js,*.jsx,*.ts,*.tsx,*.css,*.scss,*.json,*.graphql Neoformat
+-- ]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
