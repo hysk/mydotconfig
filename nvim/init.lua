@@ -568,20 +568,6 @@ null_ls.setup({
 })
 
 -- ===========================================================
--- NeoFormat
--- ===========================================================
--- vim.g.neoformat_try_node_exe = 1
--- 
--- -- neoformatを有効化
--- vim.cmd [[
---   autocmd BufWritePre *.js,*.jsx,*.ts,*.tsx,*.css,*.scss,*.json,*.graphql Neoformat
--- ]]
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
---
-
--- ===========================================================
 -- NvimTree
 -- ===========================================================
 local function my_on_attach(bufnr)
@@ -691,5 +677,4 @@ require("nvim-tree").setup({
 })
 
 vim.api.nvim_set_keymap('n', '<F2>', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
-
 
