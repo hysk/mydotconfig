@@ -11,6 +11,9 @@ vim.g.loaded_netrwplugin = 1
 -- set termguicolors to enable highlight groups
 vim.opt.termguicolors = true
 
+-- カーソル行をハイライト
+vim.opt.cursorline = true
+
 -- 基本設定のロード
 require('custom.conf')
 -- keymap設定ファイルのロード
@@ -457,6 +460,7 @@ local function my_on_attach(bufnr)
   -- vim.keymap.set('n', '<C-t>', api.node.open.tab,                     opts('Open: New Tab'))
   vim.keymap.set('n', 't', api.node.open.tab,                     opts('Open: New Tab'))
   vim.keymap.set('n', 'v', api.node.open.vertical,                opts('Open: Vertical Split'))
+  vim.keymap.set('n', 'h', api.node.open.horizontal,              opts('Open: Horizontal Split'))
   -- vim.keymap.set('n', '<C-v>', api.node.open.vertical,                opts('Open: Vertical Split'))
   -- vim.keymap.set('n', '<C-x>', api.node.open.horizontal,              opts('Open: Horizontal Split'))
   -- vim.keymap.set('n', '<BS>',  api.node.navigate.parent_close,        opts('Close Directory'))
@@ -516,10 +520,18 @@ local function my_on_attach(bufnr)
 end
 
 require("nvim-tree").setup({
+  actions = {
+    open_file = {
+      window_picker = {
+        enable = false,
+      },
+    },
+  },
   renderer = {
     indent_markers = {
       enable = true
     },
+    highlight_opened_files = "none",
     icons = {
       show = {
         file = true,
