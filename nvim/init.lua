@@ -161,7 +161,11 @@ require('lazy').setup({
 -- Color scheme - OneDark
 -- ===========================================================
 require('onedark').setup {
-  style='darker',
+  style='dark',
+  highlights = {
+    ["@lsp.type.comment"] = {fg = '#6c8182'},
+    ["Comment"] = {fg = '#6c8182'},
+  },
 }
 
 require('onedark').load()
@@ -353,7 +357,7 @@ local servers = {
   -- rust_analyzer = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
-  tsserver = {'lua','typescript','graphql','javascript'},
+  tsserver = {'lua','typescript','graphql','javascript', 'python','bash','sql','dockerfile', 'yaml'},
 
   lua_ls = {
     Lua = {
@@ -497,7 +501,7 @@ local function my_on_attach(bufnr)
   vim.keymap.set('n', '?',    api.tree.toggle_help,                  opts('Help'))
   -- vim.keymap.set('n', 'g?',    api.tree.toggle_help,                  opts('Help'))
   -- vim.keymap.set('n', 'H',     api.tree.toggle_hidden_filter,         opts('Toggle Filter: Dotfiles'))
-  -- vim.keymap.set('n', 'I',     api.tree.toggle_gitignore_filter,      opts('Toggle Filter: Git Ignore'))
+   vim.keymap.set('n', 'I',     api.tree.toggle_gitignore_filter,      opts('Toggle Filter: Git Ignore'))
   -- vim.keymap.set('n', 'J',     api.node.navigate.sibling.last,        opts('Last Sibling'))
   -- vim.keymap.set('n', 'K',     api.node.navigate.sibling.first,       opts('First Sibling'))
   -- vim.keymap.set('n', 'm',     api.marks.toggle,                      opts('Toggle Bookmark'))
@@ -526,6 +530,9 @@ require("nvim-tree").setup({
         enable = false,
       },
     },
+  },
+  filters = {
+    git_ignored = false,
   },
   renderer = {
     indent_markers = {
