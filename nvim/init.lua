@@ -150,7 +150,13 @@ require("lazy").setup({
 		"prettier/vim-prettier",
 		build = "yarn install --frozen-lockfile",
 	},
+
+	-- Surroundings parenthese, bracket, quotes
+	"kylechui/nvim-surround",
 }, {})
+
+-- nvim-surround
+require("nvim-surround").setup()
 
 -- ===========================================================
 -- Color scheme - OneDark
@@ -592,17 +598,22 @@ null_ls.setup({
 		-- Python
 		null_ls.builtins.formatting.black,
 		null_ls.builtins.formatting.isort,
-		null_ls.builtins.diagnostics.pyproject_flake8,
+		--null_ls.builtins.diagnostics.pyproject_flake8, -- dropped
 		--null_ls.builtins.diagnostics.flake8.with({
 		--  extra_args = { "--max-line-length", "120" },
 		--}),
 		-- Lua
 		null_ls.builtins.formatting.stylua,
-		null_ls.builtins.diagnostics.luacheck,
+		-- null_ls.builtins.diagnostics.luacheck, -- dropped
 		-- Typescript
 		null_ls.builtins.formatting.prettier.with({
 			prefer_local = "node_modules/.bin",
 		}),
+		-- null_ls.builtins.formatting.eslint_d, -- dropped
+		-- null_ls.builtins.formatting.eslint_d.with({
+		-- 	extra_args = { "--fix" },
+		-- 	prefer_local = "node_modules/.bin",
+		-- }),
 	},
 	on_attach = function(client, bufnr)
 		if client.supports_method("textDocument/formatting") then
