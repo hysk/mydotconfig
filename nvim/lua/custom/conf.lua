@@ -45,3 +45,5 @@ vim.o.ruler = true
 
 vim.bo.expandtab = true
 vim.o.tabstop = 2
+
+vim.opt.splitright = true

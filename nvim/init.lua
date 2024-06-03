@@ -71,6 +71,9 @@ require("lazy").setup({
 	"nvim-tree/nvim-tree.lua",
 	-- 'nvim-tree/nvim-web-devicons',
 
+	-- Github copilot
+	"github/copilot.vim",
+
 	{
 		-- color scheme OneDark
 		"navarasu/onedark.nvim",
@@ -149,6 +152,17 @@ require("lazy").setup({
 	{
 		"prettier/vim-prettier",
 		build = "yarn install --frozen-lockfile",
+	},
+	-- nvim-surround
+	{
+		"kylechui/nvim-surround",
+		version = "*", -- Use for stability; omit to use `main` branch for the latest features
+		event = "VeryLazy",
+		config = function()
+			require("nvim-surround").setup({
+				-- Configuration here, or leave empty to use defaults
+			})
+		end,
 	},
 }, {})
 
@@ -353,9 +367,11 @@ local servers = {
 
 	lua_ls = {
 		Lua = {
-			workspace = { checkThirdParty = false },
-			telemetry = { enable = false },
+			--workspace = { checkThirdParty = false },
+			--telemetry = { enable = false },
+			diagnostics = { globals = { "vim" } },
 		},
+		filetypes = { "lua" },
 	},
 }
 
@@ -593,14 +609,11 @@ null_ls.setup({
 		null_ls.builtins.formatting.black,
 		null_ls.builtins.formatting.isort,
 		null_ls.builtins.diagnostics.pyproject_flake8,
-		--null_ls.builtins.diagnostics.flake8.with({
-		--  extra_args = { "--max-line-length", "120" },
-		--}),
 		-- Lua
 		null_ls.builtins.formatting.stylua,
 		null_ls.builtins.diagnostics.luacheck,
 		-- Typescript
-		null_ls.builtins.formatting.prettier.with({
+		null_ls.builtins.formatting.prettierd.with({
 			prefer_local = "node_modules/.bin",
 		}),
 	},
