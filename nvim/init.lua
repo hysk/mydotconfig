@@ -606,7 +606,7 @@ null_ls.setup({
 		null_ls.builtins.formatting.stylua,
 		-- null_ls.builtins.diagnostics.luacheck, -- dropped
 		-- Typescript
-		null_ls.builtins.formatting.prettier.with({
+		null_ls.builtins.formatting.prettierd.with({
 			prefer_local = "node_modules/.bin",
 		}),
 		-- null_ls.builtins.formatting.eslint_d, -- dropped
