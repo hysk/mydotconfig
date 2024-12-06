@@ -45,3 +45,8 @@ vim.o.ruler = true
 
 vim.bo.expandtab = true
 vim.o.tabstop = 2
+
+-- 行末の空白削除
+vim.cmd([[
+  autocmd BufWritePre * %s/\s\+$//e
+]])

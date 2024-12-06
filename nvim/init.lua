@@ -14,6 +14,9 @@ vim.opt.termguicolors = true
 -- カーソル行をハイライト
 vim.opt.cursorline = true
 
+-- for redrawtime exceeded
+vim.opt.re = 0
+
 -- 基本設定のロード
 require("custom.conf")
 -- keymap設定ファイルのロード
@@ -209,6 +212,17 @@ vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]resume" })
 
+-- ハイライト設定
+--vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = "#FF5733", bg = "#1E1E2E", bold = true })
+--vim.api.nvim_set_hl(0, "TelescopeSelection", { fg = "#FFFFFF", bg = "#4B0082", bold = true })
+--vim.api.nvim_set_hl(0, "TelescopeSelectionCaret", { fg = "#FFD700", bg = "#4B0082", bold = true })
+vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { fg = "#D0D0D0", bg = "#2E3440" })
+--vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { fg = "#81A1C1", bg = "#2E3440" })
+vim.api.nvim_set_hl(0, "TelescopePreviewLine", { fg = "#EBCB8B", bg = "#4C566A", bold = true })
+vim.api.nvim_set_hl(0, "TelescopePreviewMatch", { fg = "#BF616A", bg = "#3B4252", underline = true })
+--vim.api.nvim_set_hl(0, "TelescopePreviewTitle", { fg = "#A3BE8C", bg = "#2E3440", bold = true })
+vim.api.nvim_set_hl(0, "TelescopePreviewHyphen", { fg = "#88C0D0", bg = "#2E3440" })
+
 -- -- ===========================================================
 -- -- Treesitterの設定
 -- -- ===========================================================
@@ -319,6 +333,12 @@ local on_attach = function(_, bufnr)
 	nmap("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
 	nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
 	nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+
+	-- 垂直分割で定義元を開く
+	nmap("gv", function()
+		vim.cmd("vsplit") -- 新しい垂直分割ウィンドウを作成
+		vim.lsp.buf.definition() -- 定義元にジャンプ
+	end, "[G]oto [V]ertical split Definition")
 
 	-- See `:help K` for why this keymap
 	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
