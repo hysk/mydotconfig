@@ -1,32 +1,35 @@
--- Keymaps for better default experience
---  common options
+-- common options
 local keymapOpts = { noremap = true, silent = true }
 
--- See `:help vim.keymap.set()`
-vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+-- キーマップのラップ関数
+local function my_map(mode, lhs, rhs, option, desc)
+	vim.keymap.set(mode, lhs, rhs, vim.tbl_extend("force", option, { desc = desc }))
+end
 
--- Remap for dealing with word wrap
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+-- 汎用キーを事前に無効化
+my_map("n", "s", "<NOP>", keymapOpts, "")
+my_map({ "n", "v" }, "<Space>", "<Nop>", keymapOpts, "")
 
--- set s key to Window moving.
-vim.keymap.set("n", "s", "<NOP>")
--- set s+hjkl move to other window
-vim.keymap.set("n", "sj", "<C-w>j")
-vim.keymap.set("n", "sk", "<C-w>k")
-vim.keymap.set("n", "sl", "<C-w>l")
-vim.keymap.set("n", "sh", "<C-w>h")
-vim.keymap.set("n", "sH", "<C-w>t")
--- set s+nptT move tab
-vim.keymap.set("n", "sn", "gt")
-vim.keymap.set("n", "sp", "gT")
-vim.keymap.set("n", "st", ":<C-u>tabnew<CR>")
+-- バッファ移動
+my_map("n", "sj", "<C-w>j", keymapOpts, "Move to window below")
+my_map("n", "sk", "<C-w>k", keymapOpts, "Move to window above")
+my_map("n", "sl", "<C-w>l", keymapOpts, "Move to window right")
+my_map("n", "sh", "<C-w>h", keymapOpts, "Move to window left")
+my_map("n", "sH", "<C-w>t", keymapOpts, "Move to top window")
 
--- change buffer size
-vim.keymap.set("n", "<Space>h", "<C-w><", keymapOpts)
-vim.keymap.set("n", "<Space>l", "<C-w>>", keymapOpts)
-vim.keymap.set("n", "<Space>j", "<C-w>-", keymapOpts)
-vim.keymap.set("n", "<Space>k", "<C-w>+", keymapOpts)
+-- タブ移動
+my_map("n", "sn", "gt", keymapOpts, "Move to next tab")
+my_map("n", "sp", "gT", keymapOpts, "Move to previous tab")
+my_map("n", "st", ":<C-u>tabnew<CR>", keymapOpts, "New tab")
+
+-- バッファいサイズ変更
+my_map("n", "<Space>h", "<C-w><", keymapOpts, "Change buffer size")
+my_map("n", "<Space>l", "<C-w>>", keymapOpts, "Change buffer size")
+my_map("n", "<Space>j", "<C-w>-", keymapOpts, "Change buffer size")
+my_map("n", "<Space>k", "<C-w>+", keymapOpts, "Change buffer size")
 
 -- F3でハイライト表示を切り替え
-vim.keymap.set("n", "<F3>", ":<C-u>set nohlsearch!<CR>", keymapOpts)
+my_map("n", "<F3>", ":<C-u>set nohlsearch!<CR>", keymapOpts, "Toggle search highlight")
+
+-- F8: init.luaの編集
+my_map("n", "<F8>", ":e ~/.config/nvim/init.lua<CR>", keymapOpts, "Edit init.lua")

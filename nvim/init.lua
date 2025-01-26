@@ -14,24 +14,9 @@ vim.opt.termguicolors = true
 -- カーソル行をハイライト
 vim.opt.cursorline = true
 
--- 基本設定のロード
+-- カスタムの設定ファイルのロード
 require("custom.conf")
--- keymap設定ファイルのロード
 require("custom.keymap")
-
--- F8: init.luaの編集
-vim.api.nvim_set_keymap("n", "<F8>", ":e ~/.config/nvim/init.lua<CR>", { noremap = true, silent = true })
-
--- F9: init.luaのリロード
---vim.api.nvim_set_keymap('n', '<F9>', ':source ~/.config/nvim/init.lua<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<F9>", ":lua reload_config()<CR>", { noremap = true, silent = true })
-
--- function for Reload the configuration
-function _G.reload_config()
-	vim.cmd("source ~/.config/nvim/init.lua")
-	vim.cmd("luafile %")
-	print("Configuration reloaded")
-end
 
 -- ===========================================================
 -- Lazyのセットアップ
@@ -55,17 +40,9 @@ vim.opt.rtp:prepend(lazypath)
 -- ===========================================================
 -- Lazyでインストールするプラグインの設定
 -- ===========================================================
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
 require("lazy").setup({
 	-- vim helpを日本語化
 	"vim-jp/vimdoc-ja",
-
-	-- Detect tabstop and shiftwidth automatically
-	"tpope/vim-sleuth",
 
 	-- fire tree
 	"nvim-tree/nvim-tree.lua",
@@ -131,21 +108,14 @@ require("lazy").setup({
 		},
 	},
 
-	--   {
-	--     -- tree-sitterを使ったシンタックスハイライト・構文解析
-	--     -- インデントがいい感じに動かないので未使用とする
-	--     -- Highlight, edit, and navigate code
-	--     'nvim-treesitter/nvim-treesitter',
-	--     dependencies = {
-	--       'nvim-treesitter/nvim-treesitter-textobjects',
-	--     },
-	--     build = ':TSUpdate',
-	--   },
-
-	-- null-ls(none-ls)
 	{
-		--'jose-elias-alvarez/null-ls.nvim',
-		"nvimtools/none-ls.nvim",
+		-- tree-sitterを使ったシンタックスハイライト・構文解析
+		-- Highlight, edit, and navigate code
+		"nvim-treesitter/nvim-treesitter",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter-textobjects",
+		},
+		build = ":TSUpdate",
 	},
 
 	-- Pretttier
@@ -163,6 +133,25 @@ require("lazy").setup({
 				-- Configuration here, or leave empty to use defaults
 			})
 		end,
+	},
+	-- nvim-lint(Linter)
+	{
+		"mfussenegger/nvim-lint",
+		config = function()
+			require("lint").linters_by_ft = {
+				lua = { "selene" },
+				-- python = { "flake8" },
+				typescript = { "eslint" },
+				javascript = { "eslint" },
+				html = { "htmlhint" },
+				markdown = { "vale" },
+			}
+		end,
+	},
+	-- conform(formatter)
+	{
+		"stevearc/conform.nvim",
+		opts = {},
 	},
 }, {})
 
@@ -217,78 +206,92 @@ vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]resume" })
 
--- -- ===========================================================
--- -- Treesitterの設定
--- -- ===========================================================
--- -- [[ Configure Treesitter ]]
--- -- See `:help nvim-treesitter`
--- require('nvim-treesitter.configs').setup {
---   -- Add languages to be installed here that you want installed for treesitter
---   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'graphql', 'sql' },
---
---   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
---   auto_install = false,
---
---   sync_install = false,
---   ignore_install = {},
---   modules = {},
---
---   highlight = { enable = true },
---   indent = { enable = false },
---   incremental_selection = {
---     enable = true,
---     keymaps = {
---       init_selection = '<c-space>',
---       node_incremental = '<c-space>',
---       scope_incremental = '<c-s>',
---       node_decremental = '<M-space>',
---     },
---   },
---   textobjects = {
---     select = {
---       enable = true,
---       lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
---       keymaps = {
---         -- You can use the capture groups defined in textobjects.scm
---         ['aa'] = '@parameter.outer',
---         ['ia'] = '@parameter.inner',
---         ['af'] = '@function.outer',
---         ['if'] = '@function.inner',
---         ['ac'] = '@class.outer',
---         ['ic'] = '@class.inner',
---       },
---     },
---     move = {
---       enable = true,
---       set_jumps = true, -- whether to set jumps in the jumplist
---       goto_next_start = {
---         [']m'] = '@function.outer',
---         [']]'] = '@class.outer',
---       },
---       goto_next_end = {
---         [']M'] = '@function.outer',
---         [']['] = '@class.outer',
---       },
---       goto_previous_start = {
---         ['[m'] = '@function.outer',
---         ['[['] = '@class.outer',
---       },
---       goto_previous_end = {
---         ['[M'] = '@function.outer',
---         ['[]'] = '@class.outer',
---       },
---     },
---     swap = {
---       enable = true,
---       swap_next = {
---         ['<leader>a'] = '@parameter.inner',
---       },
---       swap_previous = {
---         ['<leader>A'] = '@parameter.inner',
---       },
---     },
---   },
--- }
+-- ===========================================================
+-- Treesitterの設定
+-- ===========================================================
+-- [[ Configure Treesitter ]]
+-- See `:help nvim-treesitter`
+require("nvim-treesitter.configs").setup({
+	-- Add languages to be installed here that you want installed for treesitter
+	ensure_installed = {
+		"c",
+		"cpp",
+		"go",
+		"lua",
+		"python",
+		"rust",
+		"tsx",
+		"javascript",
+		"typescript",
+		"vimdoc",
+		"vim",
+		"graphql",
+		"sql",
+	},
+
+	-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+	auto_install = false,
+
+	sync_install = false,
+	ignore_install = {},
+	modules = {},
+
+	highlight = { enable = true },
+	indent = { enable = false },
+	incremental_selection = {
+		enable = true,
+		keymaps = {
+			init_selection = "<c-space>",
+			node_incremental = "<c-space>",
+			scope_incremental = "<c-s>",
+			node_decremental = "<M-space>",
+		},
+	},
+	textobjects = {
+		select = {
+			enable = true,
+			lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+			keymaps = {
+				-- You can use the capture groups defined in textobjects.scm
+				["aa"] = "@parameter.outer",
+				["ia"] = "@parameter.inner",
+				["af"] = "@function.outer",
+				["if"] = "@function.inner",
+				["ac"] = "@class.outer",
+				["ic"] = "@class.inner",
+			},
+		},
+		move = {
+			enable = true,
+			set_jumps = true, -- whether to set jumps in the jumplist
+			goto_next_start = {
+				["]m"] = "@function.outer",
+				["]]"] = "@class.outer",
+			},
+			goto_next_end = {
+				["]M"] = "@function.outer",
+				["]["] = "@class.outer",
+			},
+			goto_previous_start = {
+				["[m"] = "@function.outer",
+				["[["] = "@class.outer",
+			},
+			goto_previous_end = {
+				["[M"] = "@function.outer",
+				["[]"] = "@class.outer",
+			},
+		},
+		swap = {
+			enable = true,
+			swap_next = {
+				["<leader>a"] = "@parameter.inner",
+			},
+			swap_previous = {
+				["<leader>A"] = "@parameter.inner",
+			},
+		},
+	},
+})
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
@@ -348,6 +351,14 @@ local on_attach = function(_, bufnr)
 	end, { desc = "Format current buffer with LSP" })
 end
 
+-- ===========================================================
+-- Setup neovim lua configuration
+-- ===========================================================
+require("neodev").setup()
+
+-- ===========================================================
+-- Language Server Configuration
+-- ===========================================================
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -363,8 +374,10 @@ local servers = {
 	-- rust_analyzer = {},
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
-	tsserver = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
+	--tsserver = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
+	ts_ls = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
 
+	ruff = {},
 	lua_ls = {
 		Lua = {
 			--workspace = { checkThirdParty = false },
@@ -375,18 +388,22 @@ local servers = {
 	},
 }
 
--- Setup neovim lua configuration
-require("neodev").setup()
-
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+-- ===========================================================
+-- mason
+-- mason-lspconfig
+-- ===========================================================
+require("mason").setup()
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
 	ensure_installed = vim.tbl_keys(servers),
+	automatic_installation = false,
 })
 
 mason_lspconfig.setup_handlers({
@@ -398,15 +415,6 @@ mason_lspconfig.setup_handlers({
 			filetypes = (servers[server_name] or {}).filetypes,
 		})
 	end,
-})
-
--- ===========================================================
--- nvim-cmp
--- ===========================================================
-require("mason").setup({
-	ui = {
-		border = "single",
-	},
 })
 
 -- ===========================================================
@@ -592,41 +600,31 @@ end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
 
 -- ===========================================================
--- Null-ls, None-ls
+-- Conform
 -- ===========================================================
-local status, null_ls = pcall(require, "null-ls")
-if not status then
-	return
-end
-
-local nullls_group = vim.api.nvim_create_augroup("", { clear = true })
-null_ls.setup({
-	sources = {
-		-- null_ls.builtins.diagnostics.eslint_d.with({
-		--   prefer_local = "node_modules/.bin",
-		-- }),
-		-- Python
-		null_ls.builtins.formatting.black,
-		null_ls.builtins.formatting.isort,
-		null_ls.builtins.diagnostics.pyproject_flake8,
-		-- Lua
-		null_ls.builtins.formatting.stylua,
-		null_ls.builtins.diagnostics.luacheck,
-		-- Typescript
-		null_ls.builtins.formatting.prettierd.with({
-			prefer_local = "node_modules/.bin",
-		}),
+require("conform").setup({
+	formatters_by_ft = {
+		lua = { "stylua" },
+		-- Conform will run multiple formatters sequentially
+		python = { "ruff_fix", "ruff_format" },
+		markdown = { "prettierd" },
+		-- You can customize some of the format options for the filetype (:help conform.format)
+		--rust = { "rustfmt", lsp_format = "fallback" },
+		-- Conform will run the first available formatter
+		--javascript = { "prettierd", "prettier", stop_after_first = true },
 	},
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = nullls_group, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = nullls_group,
-				buffer = bufnr,
-				callback = function()
-					vim.lsp.buf.format({ async = false })
-				end,
-			})
-		end
-	end,
+	format_on_save = {
+		-- These options will be passed to conform.format()
+		timeout_ms = 500,
+		lsp_format = "fallback",
+	},
 })
+-- ===========================================================
+-- Copilot
+-- ===========================================================
+-- Ctrl-jでサジェストを受け入れる
+vim.keymap.set("i", "<C-j>", 'copilot#Accept("\\<CR>")', {
+	expr = true,
+	replace_keycodes = false,
+})
+vim.g.copilot_no_tab_map = true
