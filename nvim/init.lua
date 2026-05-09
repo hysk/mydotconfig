@@ -41,8 +41,6 @@ vim.opt.rtp:prepend(lazypath)
 -- Lazyでインストールするプラグインの設定
 -- ===========================================================
 require("lazy").setup({
-	-- vim helpを日本語化
-	"vim-jp/vimdoc-ja",
 
 	-- fire tree
 	"nvim-tree/nvim-tree.lua",
@@ -116,6 +114,90 @@ require("lazy").setup({
 			"nvim-treesitter/nvim-treesitter-textobjects",
 		},
 		build = ":TSUpdate",
+		config = function()
+			require("nvim-treesitter.config").setup({
+				-- Add languages to be installed here that you want installed for treesitter
+				ensure_installed = {
+					"c",
+					"cpp",
+					"go",
+					"lua",
+					"python",
+					"rust",
+					"tsx",
+					"javascript",
+					"typescript",
+					"vimdoc",
+					"vim",
+					"graphql",
+					"sql",
+				},
+
+				-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+				auto_install = false,
+
+				sync_install = false,
+				ignore_install = {},
+				modules = {},
+
+				highlight = { enable = true },
+				indent = { enable = false },
+				incremental_selection = {
+					enable = true,
+					keymaps = {
+						init_selection = "<c-space>",
+						node_incremental = "<c-space>",
+						scope_incremental = "<c-s>",
+						node_decremental = "<M-space>",
+					},
+				},
+				textobjects = {
+					select = {
+						enable = true,
+						lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+						keymaps = {
+							-- You can use the capture groups defined in textobjects.scm
+							["aa"] = "@parameter.outer",
+							["ia"] = "@parameter.inner",
+							["af"] = "@function.outer",
+							["if"] = "@function.inner",
+							["ac"] = "@class.outer",
+							["ic"] = "@class.inner",
+						},
+					},
+					move = {
+						enable = true,
+						set_jumps = true, -- whether to set jumps in the jumplist
+						goto_next_start = {
+							["]m"] = "@function.outer",
+							["]]"] = "@class.outer",
+						},
+						goto_next_end = {
+							["]M"] = "@function.outer",
+							["]["] = "@class.outer",
+						},
+						goto_previous_start = {
+							["[m"] = "@function.outer",
+							["[["] = "@class.outer",
+						},
+						goto_previous_end = {
+							["[M"] = "@function.outer",
+							["[]"] = "@class.outer",
+						},
+					},
+					swap = {
+						enable = true,
+						swap_next = {
+							["<leader>a"] = "@parameter.inner",
+						},
+						swap_previous = {
+							["<leader>A"] = "@parameter.inner",
+						},
+					},
+				},
+			})
+		end,
+
 	},
 
 	-- Pretttier
@@ -206,92 +288,6 @@ vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]resume" })
 
--- ===========================================================
--- Treesitterの設定
--- ===========================================================
--- [[ Configure Treesitter ]]
--- See `:help nvim-treesitter`
-require("nvim-treesitter.configs").setup({
-	-- Add languages to be installed here that you want installed for treesitter
-	ensure_installed = {
-		"c",
-		"cpp",
-		"go",
-		"lua",
-		"python",
-		"rust",
-		"tsx",
-		"javascript",
-		"typescript",
-		"vimdoc",
-		"vim",
-		"graphql",
-		"sql",
-	},
-
-	-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-	auto_install = false,
-
-	sync_install = false,
-	ignore_install = {},
-	modules = {},
-
-	highlight = { enable = true },
-	indent = { enable = false },
-	incremental_selection = {
-		enable = true,
-		keymaps = {
-			init_selection = "<c-space>",
-			node_incremental = "<c-space>",
-			scope_incremental = "<c-s>",
-			node_decremental = "<M-space>",
-		},
-	},
-	textobjects = {
-		select = {
-			enable = true,
-			lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-			keymaps = {
-				-- You can use the capture groups defined in textobjects.scm
-				["aa"] = "@parameter.outer",
-				["ia"] = "@parameter.inner",
-				["af"] = "@function.outer",
-				["if"] = "@function.inner",
-				["ac"] = "@class.outer",
-				["ic"] = "@class.inner",
-			},
-		},
-		move = {
-			enable = true,
-			set_jumps = true, -- whether to set jumps in the jumplist
-			goto_next_start = {
-				["]m"] = "@function.outer",
-				["]]"] = "@class.outer",
-			},
-			goto_next_end = {
-				["]M"] = "@function.outer",
-				["]["] = "@class.outer",
-			},
-			goto_previous_start = {
-				["[m"] = "@function.outer",
-				["[["] = "@class.outer",
-			},
-			goto_previous_end = {
-				["[M"] = "@function.outer",
-				["[]"] = "@class.outer",
-			},
-		},
-		swap = {
-			enable = true,
-			swap_next = {
-				["<leader>a"] = "@parameter.inner",
-			},
-			swap_previous = {
-				["<leader>A"] = "@parameter.inner",
-			},
-		},
-	},
-})
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
@@ -302,60 +298,47 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 -- ===========================================================
 -- LSPの設定
 -- ===========================================================
---  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
-	-- luaはプログラミング言語だから関数とか作れるよ
-	-- NOTE: Remember that lua is a real programming language, and as such it is possible
-	-- to define small helper and utility functions so you don't have to repeat yourself
-	-- many times.
-	--
-	-- ここではLSP用のマッピング設定の関数を定義している
-	-- In this case, we create a function that lets us more easily define mappings specific
-	-- for LSP related items. It sets the mode, buffer and description for us each time.
-	local nmap = function(keys, func, desc)
-		if desc then
-			desc = "LSP: " .. desc
+-- LspAttach イベントでキーマップを設定
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function(args)
+		-- ts_ls のフォーマットを無効化
+		local client = vim.lsp.get_client_by_id(args.data.client_id)
+		if client and client.name == "ts_ls" then
+			client.server_capabilities.documentFormattingProvider = false
+			client.server_capabilities.documentRangeFormattingProvider = false
+		end
+		local bufnr = args.buf
+		local nmap = function(keys, func, desc)
+			vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
 		end
 
-		vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-	end
+		nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+		nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+		nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinitions")
+		nmap("gv", function()
+			vim.cmd("vsplit")
+			vim.lsp.buf.definition()
+		end, "[G]oto [D]efinitions (Vertical Split)")
+		nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+		nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+		nmap("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
+		nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+		nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+		nmap("K", vim.lsp.buf.hover, "Hover Documentation")
+		nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
+		nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+		nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
+		nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
+		nmap("<leader>wl", function()
+			print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+		end, "[W]orkspace [L]ist Folders")
+		nmap("<leader>f", vim.lsp.buf.format, "Format current buffer")
 
-	-- キーマップの設定
-	nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-	nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-
-	-- nmap("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
-	nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinitions")
-	nmap("gv", function()
-		vim.cmd("vsplit")
-		vim.lsp.buf.definition()
-	end, "[G]oto [D]efinitions (Vertical Split)")
-
-	nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-	nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-	nmap("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
-	nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-	nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-
-	-- See `:help K` for why this keymap
-	nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-	nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
-
-	-- Lesser used LSP functionality
-	nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-	nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
-	nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
-	nmap("<leader>wl", function()
-		print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-	end, "[W]orkspace [L]ist Folders")
-
-	nmap("<leader>f", vim.lsp.buf.format, "Format current buffer")
-
-	-- Create a command `:Format` local to the LSP buffer
-	vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-		vim.lsp.buf.format()
-	end, { desc = "Format current buffer with LSP" })
-end
+		vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
+			vim.lsp.buf.format()
+		end, { desc = "Format current buffer with LSP" })
+	end,
+})
 
 -- ===========================================================
 -- Setup neovim lua configuration
@@ -381,7 +364,10 @@ local servers = {
 	-- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
 	--tsserver = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
-	ts_ls = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
+	-- ts_ls = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
+	ts_ls = {
+		filetypes = { "lua", "typescript", "graphql", "javascript", "python", "bash", "sql", "dockerfile", "yaml" },
+	},
 
 	ruff = {},
 	lua_ls = {
@@ -412,17 +398,14 @@ mason_lspconfig.setup({
 	automatic_installation = false,
 })
 
-mason_lspconfig.setup_handlers({
-	function(server_name)
-		require("lspconfig")[server_name].setup({
-			capabilities = capabilities,
-			on_attach = on_attach,
-			settings = servers[server_name],
-			filetypes = (servers[server_name] or {}).filetypes,
-		})
-	end,
-})
-
+for server_name, server_config in pairs(servers) do
+	vim.lsp.config(server_name, {
+		capabilities = capabilities,
+		settings = server_config,
+		filetypes = (server_config or {}).filetypes,
+	})
+	vim.lsp.enable(server_name)
+end
 -- ===========================================================
 -- nvim-cmp
 -- ===========================================================
